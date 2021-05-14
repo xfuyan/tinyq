@@ -1,31 +1,31 @@
 # tinyq
-��Ϣ������Ƕ��ʽ����ϵͳ��ܣ��ܹ�ͬʱ����ʵʱ�Ժ͵͹�������
+消息驱动的嵌入式控制系统框架，能够同时满足实时性和低功耗需求。
 
-## �¼�����ģ��
-- �¼�����
- - ����ϵͳ���¼��������¼���Դ��Ӳ���жϣ��ڴ���һ���¼��Ĺ����п��������µ��¼������ӵ������У����������¼�������ɺ�ϵͳ����͹���״̬�ȴ��µ��¼���
+## 事件驱动模型
+- 事件驱动
+整个系统由事件驱动，事件根源于硬件中断，在处理一个事件的过程中可以生成新的事件并添加到队列中，当队列中事件处理完成后系统进入低功耗状态等待新的事件。
 
-- ������
- - �ڷ���I/Oʱ����Ϣ֪ͨ����ȴ�������������Ӧ�ٶȺ������ʵ�ͬʱ����ϵͳ���幦�ġ�
+- 非阻塞
+  - 在访问I/O时用消息通知代替等待，提高外设的相应速度和吞吐率的同时降低系统整体功耗。
 
-## ϵͳ����
-- ��Ϣ����
- - ϵͳ����һ���򼸸���Ϣ���У�ÿ�����е���Ϣѭ��������һ���߳�(��task)�С�����ϵͳֻ��һ����Ϣѭ��������main loop�С�
+## 系统构成
+- 消息队列
+  - 系统包含一个或几个消息队列，每个队列的消息循环运行在一个线程(或task)中。多数系统只有一个消息循环运行在main loop中。
 
 - Qti
- - һ��tinyqϵͳ����������Qti������֮��Ľ���ʵ�֡�tinyq����а���һ������Ϊqti_system��Ԥ�����Qti���û��Զ���ͱ�д�����Լ���Qti��
+  - 一个tinyq系统功能由若干Qti和它们之间的交互实现。tinyq框架中包含一个名字为qti_system的预定义的Qti，用户自定义和编写若干自己的Qti。
 
- - ϵͳ��ÿ��Qti��Ψһid������һ����Ϣ���սӿڣ���������ϵͳ������Qti������Ϣ��ÿ��Qti��װһ���Ĺ��ܲ����幩�ⲿ���õĽӿڡ�ͨ�����ַ�ʽʵ������ģ�黯����ģ������ϣ�ʵ�ִ��븴�ã����ʺ��Ŷӿ�����
+  - 系统中每个Qti有唯一id，包含一个消息接收接口，并可以向系统中其他Qti发送消息。每个Qti封装一定的功能并定义供外部调用的接口。通过这种方式实现软件模块化降低模块间的耦合，实现代码复用，更适合团队开发。
 
-## ΢С�Ŀ��
-tinyq��ܴ���ֻ��500�����Ҵ��룬������10���ӿ�API��������ֲ����Դ���޵�8λ�������ϡ�
-- ��Ϣ���нӿ�
- - tinyq_send_signal() ������ָ����Qti������Ϣ����Ϣ���Դ��б䳤������
+## 微小的框架
+tinyq框架代码只有500行左右代码，定义了10个接口API，可以移植到资源有限的8位处理器上。
+- 消息队列接口
+  - tinyq_send_signal() 用于向指定的Qti发送消息，消息可以带有变长参数。
 
-- qti_system�ӿ�
- - qti_system_lock()/qti_system_unlock() �������/ʹ��ϵͳ�жϡ�
- - qti_system_request_wait()/qti_system_release_wait() ��ֹ�ͻָ�ϵͳ����͹��ģ��������ĳЩ�������̲���������ʱʹ�á�
- - qti_system_start_timer()/qti_system_stop_timer()��������/ֹͣһ���͹��ĺ��뼶��ʱ����
+- qti_system接口
+  - qti_system_lock()/qti_system_unlock() 用与禁用/使能系统中断。
+  - qti_system_request_wait()/qti_system_release_wait() 阻止和恢复系统进入低功耗，当外设的某些操作过程不允许休眠时使用。
+  - qti_system_start_timer()/qti_system_stop_timer()用于启动/停止一个低功耗毫秒级定时器。
 
-## ������֤
-ʵ�úͲ�Ʒ������������BMS��ҽ���豸�����ط�������GPS Tracker��
+## 经过验证
+实用和产品化案例包括，BMS，医疗设备，车载防盗器，GPS Tracker等
